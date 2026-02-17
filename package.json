@@ -28,6 +28,9 @@
     "url": "https://github.com/managed-components/mixpanel/issues"
   },
   "homepage": "https://github.com/managed-components/mixpanel#readme",
+  "engines": {
+    "node": ">=20"
+  },
   "devDependencies": {
     "@managed-components/types": "^1.3.1",
     "@types/ua-parser-js": "^0.7.36",

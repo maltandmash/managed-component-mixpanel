@@ -17,13 +17,16 @@ const SetActionsMap = {
   'group-set': '$set',
   'group-set-once': '$set_once',
   'group-remove-from-list': '$remove',
-2  'group-union': '$union',
+  'group-union': '$union',
 }
 
-const resolveToken = (settingsToken: string | undefined, payload: MCEvent['payload']) => {
+const resolveToken = (
+  settingsToken: string | undefined,
+  payload: MCEvent['payload']
+) => {
   const payloadToken = ['@token', '$token', 'token']
-    .map((key) => payload?.[key])
-    .find((value) => typeof value === 'string' && value.length > 0) as
+    .map(key => payload?.[key])
+    .find(value => typeof value === 'string' && value.length > 0) as
     | string
     | undefined
 
@@ -250,7 +253,7 @@ export const getSetPropertiesEventArgs = (
     'user-set-action': action,
     'group-set-action': groupAction,
     '@token': _atToken,
-    '$token': _dollarToken,
+    $token: _dollarToken,
     token: _token,
     timestamp,
     $group_key,

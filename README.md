@@ -19,28 +19,97 @@ Find out more about Managed Components [here](https://blog.cloudflare.com/zaraz-
 
 ## 🔧 Setup in Cloudflare Zaraz
 
-1. Fork this repository into your own GitHub account.
-2. Create a Workers KV namespace in your Cloudflare account (example name: `managed-component-mixpanel-kv`) and copy the Namespace ID.
-3. Deploy from CLI (recommended first deploy):
-   - `npm run build`
-   - `bash scripts/setup-kv.sh --id <your_namespace_id>`
-   - `printf "y\nn\n" | npx managed-component-to-cloudflare-worker ./dist/index.js custom-mc-managed-component-mixpanel ./wrangler.custom-mc.toml`
-4. Deploy from Cloudflare Git build (CI):
+### Cloudflare Worker Setup (Git Deploy)
+
+1. Fork this repository to your own GitHub account.
+2. Create a Workers KV namespace in Cloudflare:
+   - Go to `Storage & Databases` -> `Workers KV` -> `Create Instance`.
+   - Name it `managed-component-mixpanel-kv`.
+   - Copy the namespace ID (32-char hex).
+3. Create the Worker from your fork:
+   - Go to `Workers & Pages` -> `Create Application`.
+   - Click `Continue with GitHub`.
+   - Select your forked repository.
+4. Configure build/deploy in Cloudflare:
    - Build command: `npm run build`
    - Deploy command:
      `KV_ID="${KV_NAMESPACE_ID:-$KV_NAMESPACE_ID_FALLBACK}"; test -n "$KV_ID" || { echo "Missing KV namespace ID"; exit 1; }; sed "s/__KV_NAMESPACE_ID__/$KV_ID/g" wrangler.custom-mc.template.toml > wrangler.custom-mc.toml && printf "y\nn\n" | npx managed-component-to-cloudflare-worker ./dist/index.js custom-mc-managed-component-mixpanel ./wrangler.custom-mc.toml`
-   - Set either `KV_NAMESPACE_ID` or `KV_NAMESPACE_ID_FALLBACK` in project environment variables before first deploy.
-5. Worker name should be `custom-mc-managed-component-mixpanel`.
-6. Only add KV binding manually in the Cloudflare UI if your deploy path does not use `wrangler.custom-mc.toml`.
-7. In Zaraz, add the deployed custom component as a tool.
-8. Configure tool settings:
-   - `@token` = your Mixpanel project token.
-   - `isEU` = `true` if your Mixpanel project is in EU data residency.
-   - Keep `isEU` as `false` for US projects.
-9. Save and publish.
-10. Validate requests in Zaraz logs:
-   - EU should call `https://api-eu.mixpanel.com/...`
-   - US should call `https://api.mixpanel.com/...`
+   - Worker name: `custom-mc-managed-component-mixpanel`.
+5. Run first deploy from Cloudflare UI.
+   - First deploy can fail before variables/bindings are fully configured.
+6. Add KV binding in the Worker:
+   - Go to `Workers & Pages` -> `custom-mc-managed-component-mixpanel` -> `Bindings` -> `Add Binding`.
+   - Type: `KV namespace`
+   - Variable name: `KV`
+   - KV namespace: `managed-component-mixpanel-kv`
+7. Add KV namespace ID as a build variable:
+   - Go to `Workers & Pages` -> `custom-mc-managed-component-mixpanel` -> `Settings` -> `Build` -> `Variables and secrets`.
+   - Add `KV_NAMESPACE_ID` with value set to the namespace ID copied earlier.
+8. Redeploy:
+   - Go to `Deployments` -> latest build -> `Retry build`.
+9. In Zaraz, add this deployed custom component as a tool.
+10. Configure tool settings:
+   - `@token` = Mixpanel project token.
+   - `isEU` = `true` for EU data residency projects.
+   - Leave `isEU` `false` for US projects.
+11. Save and publish.
+12. Validate requests in Zaraz logs:
+   - EU projects: `https://api-eu.mixpanel.com/...`
+   - US projects: `https://api.mixpanel.com/...`
+
+### Mixpanel Custom Managed Component setup in Zaraz
+
+1. Go to `Delivery & performance` -> `Web tag management` -> `Tag setup`.
+2. Click `Add new tool`.
+3. Select `Workers`, then choose `custom-mc-managed-component-mixpanel`.
+4. Continue and grant required permissions.
+5. Name and configure the tool:
+   - Settings:
+     - `isEU` = `true` for EU data residency projects.
+     - Leave `isEU` `false` for US projects.
+   - Default fields:
+     - `@token` = Mixpanel project token.
+6. Continue, enable tracking actions as needed, then save and publish.
+
+### Mixpanel Event to add user profile details first time - $set_once
+
+Use a `set_user_property` action to set user profile fields on first login/sign-up.
+
+1. Before any `zaraz.track(...)` calls, set a unique user id via `zaraz.set(...)` so `$distinct_id` is available.
+2. Send a track event with profile data, for example:
+
+```js
+zaraz.track('mp_profile_setup_completed', {
+  email: 'info@example.com',
+  first_name: 'Jane',
+  last_name: 'Doe',
+  phone: '+353 86 123 4567',
+  created: '2023-10-27T14:30:00Z', // ISO 8601 UTC
+  date_of_birth: '1989-01-15T00:00:00Z', // ISO 8601 UTC
+  value: 125.0,
+  currency: 'EUR',
+})
+```
+
+3. In Zaraz, create variables for the properties you want to forward.
+4. Create a new action:
+   - Trigger: the track event containing profile data (for example `mp_profile_setup_completed`)
+   - Action type: `Custom`
+   - Event name: `set_user_property`
+5. Save the action, then add fields:
+   - `user-set-action` = `profile-set-once`
+   - Map each field to its matching variable value:
+     - `$city`
+     - `$country_code`
+     - `$created`
+     - `$date_of_birth`
+     - `$distinct_id`
+     - `$email`
+     - `$first_name`
+     - `$last_name`
+     - `$phone`
+     - `$region`
+     - `$timezone`
 
 ## ⚙️ Tool Settings
 

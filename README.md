@@ -47,15 +47,6 @@ Find out more about Managed Components [here](https://blog.cloudflare.com/zaraz-
    - Add `KV_NAMESPACE_ID` with value set to the namespace ID copied earlier.
 8. Redeploy:
    - Go to `Deployments` -> latest build -> `Retry build`.
-9. In Zaraz, add this deployed custom component as a tool.
-10. Configure tool settings:
-   - `@token` = Mixpanel project token.
-   - `isEU` = `true` for EU data residency projects.
-   - Leave `isEU` `false` for US projects.
-11. Save and publish.
-12. Validate requests in Zaraz logs:
-   - EU projects: `https://api-eu.mixpanel.com/...`
-   - US projects: `https://api.mixpanel.com/...`
 
 ### Mixpanel Custom Managed Component setup in Zaraz
 

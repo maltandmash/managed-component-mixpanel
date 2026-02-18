@@ -108,11 +108,11 @@ zaraz.track('mp_profile_setup_completed', {
 
 ### Mixpanel Project Token `string`
 
-The Mixpanel Project Token is the unique identifier of your Mixpanel project. In Zaraz, set this as default field `@token`. It can also be overridden per event via payload keys `@token`, `$token`, or `token`. [Learn more](https://help.mixpanel.com/hc/en-us/articles/115004502806-Find-Project-Token-)
+The Mixpanel Project Token is the unique identifier of your Mixpanel project. In Zaraz, set this as Default Field `@token`. It can also be overridden per event via payload keys `@token`, `$token`, or `token`. [Learn more](https://help.mixpanel.com/hc/en-us/articles/115004502806-Find-Project-Token-)
 
 ### Is EU region `boolean`
 
-Set `isEU` to `true` if you are enrolled in EU Data Residency. Endpoint routing is:
+In Zaraz, create `isEU` as a custom field in Settings and set `isEU` to `true` if you are enrolled in EU Data Residency. Endpoint routing is:
 - `true` -> `https://api-eu.mixpanel.com/...`
 - `false` (or unset) -> `https://api.mixpanel.com/...`
 [Learn more](https://help.mixpanel.com/hc/en-us/articles/360039135652-Data-Residency-in-EU)

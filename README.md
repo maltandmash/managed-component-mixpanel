@@ -33,7 +33,7 @@ Find out more about Managed Components [here](https://blog.cloudflare.com/zaraz-
 4. Set up the application:
    - Build command: `npm run build`
    - Deploy command:
-     `KV_ID="${KV_NAMESPACE_ID:-$KV_NAMESPACE_ID_FALLBACK}"; test -n "$KV_ID" || { echo "Missing KV namespace ID"; exit 1; }; sed "s/__KV_NAMESPACE_ID__/$KV_ID/g" wrangler.custom-mc.template.toml > wrangler.custom-mc.toml && printf "y\nn\n" | npx managed-component-to-cloudflare-worker ./dist/index.js custom-mc-managed-component-mixpanel ./wrangler.custom-mc.toml`
+     `KV_ID="${KV_NAMESPACE_ID:-$KV_NAMESPACE_ID_FALLBACK}"; test -n "$KV_ID" || { echo "Missing KV namespace ID"; exit 1; }; sed "s/__KV_NAMESPACE_ID__/$KV_ID/g" wrangler.custom-mc.template.toml > wrangler.custom-mc.toml && printf "y\nn\n" | NPM_CONFIG_CACHE=/tmp/.npm npx --yes managed-component-to-cloudflare-worker ./dist/index.js custom-mc-managed-component-mixpanel ./wrangler.custom-mc.toml`
    - In `Advanced settings`, add environment variable:
      - Name: `KV_NAMESPACE_ID`
      - Value: the namespace ID copied in step 2
